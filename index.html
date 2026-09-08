@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="robots" content="noindex, nofollow">
   <title>Happy Birthday Nikita 🎉</title>
   <style>
     body {
@@ -172,6 +171,45 @@
       position: relative;
       z-index: 2;
     }
+    .balloon-word {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      color: #000;
+      font-size: 0.82rem;
+      font-weight: 900;
+      line-height: 1;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      text-shadow: 0 1px 3px rgba(76, 29, 49, 0.45);
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .balloon-holder.popped .balloon-word {
+      animation: wordReveal 0.35s ease-out forwards;
+    }
+    .balloon-scene.words-gathered .balloon-holder {
+      width: auto;
+      height: 72px;
+      transition: transform 0.7s ease;
+      transform: none !important;
+    }
+    .balloon-scene.words-gathered { gap: 8px; }
+    .balloon-scene.words-gathered .balloon { display: none; }
+    .balloon-scene.words-gathered .balloon-word {
+      position: static;
+      display: block;
+      margin-top: 27px;
+      font-size: 1.2rem;
+      transform: none;
+      animation: none;
+      opacity: 1;
+    }
+    @keyframes wordReveal {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
     .scene-replay {
       font-size: 0.85rem;
       padding: 9px 15px;
@@ -188,9 +226,15 @@
       margin-bottom: 16px;
       box-sizing: border-box;
     }
+    .balloon-holder {
+      width: 58px;
+      height: 72px;
+      position: relative;
+    }
     .balloon {
       width: 58px;
       height: 72px;
+      display: block;
       border-radius: 50% 50% 45% 45%;
       position: relative;
       animation: balloonBob 2s ease-in-out infinite;
@@ -213,10 +257,10 @@
       border-top-color: currentColor;
       transform: translateX(-50%);
     }
-    .balloon:nth-child(1) { background: #ff5b91; color: #ff5b91; animation-delay: 0s; }
-    .balloon:nth-child(2) { background: #ffb347; color: #ffb347; animation-delay: 0.25s; }
-    .balloon:nth-child(3) { background: #7c9cff; color: #7c9cff; animation-delay: 0.5s; }
-    .balloon:nth-child(4) { background: #c77dff; color: #c77dff; animation-delay: 0.75s; }
+    .balloon-holder:nth-child(1) .balloon { background: #ff5b91; color: #ff5b91; animation-delay: 0s; }
+    .balloon-holder:nth-child(2) .balloon { background: #ffb347; color: #ffb347; animation-delay: 0.25s; }
+    .balloon-holder:nth-child(3) .balloon { background: #7c9cff; color: #7c9cff; animation-delay: 0.5s; }
+    .balloon-holder:nth-child(4) .balloon { background: #c77dff; color: #c77dff; animation-delay: 0.75s; }
     .balloon.popping { animation: balloonPop 0.55s ease forwards; }
     @keyframes balloonBob {
       0%, 100% { transform: translateY(0) rotate(-2deg); }
@@ -1087,7 +1131,10 @@ background-color: #f7c5d4;
       <div id="meet" class="tab-content">
         <div class="animation-scene">
           <div class="balloon-scene">
-            <span class="balloon"></span><span class="balloon"></span><span class="balloon"></span><span class="balloon"></span>
+            <span class="balloon-holder"><span class="balloon"></span><span class="balloon-word">Make</span></span>
+            <span class="balloon-holder"><span class="balloon"></span><span class="balloon-word">a</span></span>
+            <span class="balloon-holder"><span class="balloon"></span><span class="balloon-word">wish</span></span>
+            <span class="balloon-holder"><span class="balloon"></span><span class="balloon-word">Nikki!</span></span>
           </div>
           <div class="pop-sparkles">✦ ✨ ✦</div>
           <p class="scene-message">Pop! Just like my heart when I saw you 💖 Each balloon carries a wish 💕</p>
@@ -1352,16 +1399,27 @@ background-color: #f7c5d4;
 
     function replayScene(id) {
       if (id === 'meet') {
-        const balloons = document.querySelectorAll('#meet .balloon');
+        const balloonHolders = document.querySelectorAll('#meet .balloon-holder');
+        const balloonScene = document.querySelector('#meet .balloon-scene');
         const sparkles = document.querySelector('#meet .pop-sparkles');
-        balloons.forEach((balloon) => balloon.classList.remove('popping'));
+        balloonScene.classList.remove('words-gathered');
+        balloonHolders.forEach((holder) => {
+          holder.classList.remove('popped');
+          holder.querySelector('.balloon').classList.remove('popping');
+        });
         sparkles.classList.remove('show');
-        balloons.forEach((balloon, index) => {
+        balloonHolders.forEach((holder, index) => {
           setTimeout(() => {
-            balloon.classList.add('popping');
+            holder.querySelector('.balloon').classList.add('popping');
+            holder.classList.add('popped');
             sparkles.classList.remove('show');
             void sparkles.offsetWidth;
             sparkles.classList.add('show');
+            if (index === balloonHolders.length - 1) {
+              setTimeout(() => {
+                balloonScene.classList.add('words-gathered');
+              }, 600);
+            }
           }, 700 + index * 650);
         });
       }
